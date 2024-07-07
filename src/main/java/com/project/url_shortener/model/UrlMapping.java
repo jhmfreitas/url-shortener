@@ -2,7 +2,6 @@ package com.project.url_shortener.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.redis.core.RedisHash;
 
 @Document(collection = "url_mappings")
 public class UrlMapping {

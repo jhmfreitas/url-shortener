@@ -4,7 +4,6 @@ import com.project.url_shortener.model.UrlMapping;
 import com.project.url_shortener.repository.UrlMappingRepository;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
@@ -40,10 +39,10 @@ public class UrlMappingService {
     }
 
     public String shortenUrl(String originalUrl) throws NoSuchAlgorithmException {
-        // Using a hashed version of the original url instead of the original url avoids problems in Redis keys parsing
+        // Using a hashed version of the original url instead of the original url avoids problems in url parsing when retrieving from db
         String originalUrlHash = hashUrl(originalUrl);
 
-        UrlMapping existingMapping = readFromRedisByOriginalHash(originalUrlHash);
+        UrlMapping existingMapping = readByOriginalHash(originalUrlHash);
         if (existingMapping != null) {
             return existingMapping.getShortUrl();
         }
@@ -53,29 +52,28 @@ public class UrlMappingService {
         urlMapping.setOriginalUrl(originalUrl);
         urlMapping.setShortUrl(shortUrl);
         urlMapping.setHash(originalUrlHash);
-        writeToRedis(urlMapping);
+        writeUrlMapping(urlMapping);
         return shortUrl;
     }
 
-    private UrlMapping readFromRedisByOriginalHash(String originalUrlHash) {
+    private UrlMapping readByOriginalHash(String originalUrlHash) {
         return urlMappingRepository.findByHash(originalUrlHash);
     }
 
-    private UrlMapping readFromRedisByShortUrl(String shortUrl) {
+    private UrlMapping readByShortUrl(String shortUrl) {
         return urlMappingRepository.findByShortUrl(shortUrl);
-       // return (UrlMapping) redisTemplate.opsForHash().get("UrlMapping", shortUrl);
     }
 
-    private void writeToRedis(UrlMapping urlMapping) {
+    private void writeUrlMapping(UrlMapping urlMapping) {
         urlMappingRepository.save(urlMapping);
     }
 
-    private String hashUrl(String originalUrl) {
+    String hashUrl(String originalUrl) {
         return DigestUtils.sha256Hex(originalUrl);
     }
 
     public String getOriginalUrl(String shortUrl) {
-        UrlMapping urlMapping = readFromRedisByShortUrl(shortUrl);
+        UrlMapping urlMapping = readByShortUrl(shortUrl);
         return urlMapping != null ? urlMapping.getOriginalUrl() : null;
     }
 }
