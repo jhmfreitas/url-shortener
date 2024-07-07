@@ -2,6 +2,7 @@ services:
   mongodb:
     image: mongo:latest
     container_name: mongodb
+    hostname: mongodb
     ports:
       - "27017:27017"
     volumes:
@@ -10,8 +11,9 @@ services:
   url-shortener:
     build: .
     container_name: url-shortener
+    hostname: shortener
     ports:
-      - "8080:8080"
+      - "8082:8080"
     depends_on:
       - mongodb
     environment:
