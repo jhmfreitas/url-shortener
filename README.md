@@ -139,8 +139,8 @@ Once the service is up and running, you can use the following endpoints:
     ./mvnw clean install
     ```
 
-2. **Build the Docker image:**
+2. **Run the application:**
 
     ```sh
-    docker build -t url-shortener .
+    ./mvnw spring-boot:run
     ```
